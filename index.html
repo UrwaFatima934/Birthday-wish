@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday! 🎉</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Sacramento&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2 {
+            font-family: 'Sacramento', cursive;
+            font-size: 3.2rem;
+            color: #ff6584;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 101, 132, 0.4);
+        }
+
+        p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6584, #ff8da1);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 101, 132, 0.4);
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 101, 132, 0.6);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* Name Modal Overlay */
+        #nameModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 20, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            margin: 20px 0;
+            outline: none;
+        }
+
+        /* Gallery / Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .polaroid {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #ffd1dc;
+        }
+
+        /* Quiz Styles */
+        .quiz-box {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        .quiz-options button {
+            display: block;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+        .quiz-options button:hover {
+            background: rgba(255, 101, 132, 0.3);
+        }
+
+        /* Grand Wish Box */
+        .grand-wish-text {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #ff6584;
+            text-align: left;
+            max-height: 350px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #fce4ec;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Step 1: Name Popup -->
+    <div id="nameModal">
+        <div class="modal-content">
+            <h2 style="font-size: 2.50rem;">Who's Special Today?</h2>
+            <p>Please enter the birthday boy's name:</p>
+            <input type="text" id="cousinNameInput" placeholder="e.g. Shehraz" value="Shehraz">
+            <button class="btn" onclick="saveName()">Let's Celebrate! 🎉</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Step 2: Welcome & Intro -->
+        <div class="step active" id="step-1">
+            <h1 id="welcomeTitle">Happy Birthday!</h1>
+            <p>Welcome to a special journey created just for you. Let's step through some amazing memories, fun tasks, and heartfelt moments!</p>
+            <div style="font-size: 4rem; margin: 20px 0;">🎂✨</div>
+            <button class="btn" onclick="nextStep(2)">Next Step ➡️</button>
+        </div>
+
+        <!-- Step 3: Memories & Inside Jokes -->
+        <div class="step" id="step-2">
+            <h2>Our Sweet Memories</h2>
+            <p>Some bonds are meant to last forever. Here's a quick flashback of our best moments!</p>
+            <div class="card-grid">
+                <div class="polaroid">📸 Late night conversations & endless laughs!</div>
+                <div class="polaroid">😂 Inside jokes that only we understand.</div>
+                <div class="polaroid">🤝 Always having each other's back through thick and thin.</div>
+                <div class="polaroid">🌟 Countless amazing family moments together.</div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="prevStep(1)">⬅️ Back</button>
+                <button class="btn" onclick="nextStep(3)">Next Step ➡️</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Fun Quiz & Virtual Cake -->
+        <div class="step" id="step-3">
+            <h2>Fun Tasks & Mini Game</h2>
+            <div class="quiz-box">
+                <p><strong>Quick Quiz:</strong> Who is the coolest and most awesome cousin in the family?</p>
+                <div class="quiz-options">
+                    <button onclick="alert('Absolutely right! 🎉')">A) Definitely You! 😎</button>
+                    <button onclick="alert('100% Correct! 🌟')">B) Without a doubt, YOU! 🥳</button>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <p>Blow out the virtual candles!</p>
+                <button class="btn" onclick="triggerConfetti()">Blow Candles 🎂💨</button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="prevStep(2)">⬅️ Back</button>
+                <button class="btn" onclick="nextStep(4)">Next Step ➡️</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Compliments & Traits -->
+        <div class="step" id="step-4">
+            <h2>Your Awesome Traits</h2>
+            <p>Here is what makes you truly special:</p>
+            <div class="card-grid">
+                <div class="polaroid">❤️ Kind Heart</div>
+                <div class="polaroid">🔥 Always Inspiring</div>
+                <div class="polaroid">🛡️ Reliable Brother & Friend</div>
+                <div class="polaroid">✨ Bright Future Ahead</div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="prevStep(3)">⬅️ Back</button>
+                <button class="btn" onclick="nextStep(5)">Final Grand Wish 🎁</button>
+            </div>
+        </div>
+
+        <!-- Step 6: The Grand Finale & Mix Last Grand Wish -->
+        <div class="step" id="step-5">
+            <h2>Grand Climax</h2>
+            <p>You have reached the final special moment! Click below to grant the ultimate last grand wish.</p>
+            
+            <button class="btn" id="grandWishBtn" onclick="grantLastWish()" style="font-size: 1.2rem; padding: 15px 35px; background: linear-gradient(135deg, #ff416c, #ff4b2b);">
+                ✨ Grant Last Grand Wish ✨
+            </button>
+
+            <div id="grandWishContainer" style="display: none;">
+                <div class="grand-wish-text" id="finalWishContent">
+                    <!-- Wish text will be loaded dynamically via JS -->
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn" onclick="prevStep(4)">⬅️ Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let cousinName = "Shehraz";
+
+        function saveName() {
+            const inputVal = document.getElementById('cousinNameInput').value.trim();
+            if(inputVal !== "") {
+                cousinName = inputVal;
+            }
+            document.getElementById('welcomeTitle').innerText = `Happy Birthday, ${cousinName}!`;
+            document.getElementById('nameModal').style.display = 'none';
+            triggerConfetti();
+        }
+
+        function nextStep(step) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            currentStep = step;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            currentStep = step;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function grantLastWish() {
+            triggerConfetti();
+            setTimeout(triggerConfetti, 400);
+            setTimeout(triggerConfetti, 800);
+
+            const wishHTML = `
+                Happy Birthday, <strong>${cousinName}</strong>! 🎂✨<br><br>
+                Today is a special day because it’s the day someone truly special to our family was born. I just want you to know how grateful I am to have a cousin like you in my life. Sometimes we don’t say these things out loud, but having good people around us is one of the biggest blessings in life, and I’m genuinely thankful for you.<br><br>
+                On your birthday, I pray that Allah fills your life with endless happiness, peace, success, and countless beautiful moments. May He protect you from every difficulty, guide you toward everything that is best for you, and bless every step you take toward your dreams. 🤲🏻❤️<br><br>
+                May this new year of your life bring you opportunities that make you proud of yourself, people who truly value you, and memories that you’ll smile about for years to come. Never lose your kind heart, your smile, and the person you are. Keep believing in yourself, even when things don’t go exactly the way you want.<br><br>
+                I hope you achieve everything you’ve been working for and become the person you dream of becoming. And whenever life gets difficult, I hope you always remember that better days are ahead and that every struggle has a purpose.<br><br>
+                Thank you for being such a good cousin and for being a part of so many memories. I hope we continue making countless more memories together, laughing over silly things, enjoying family moments, and supporting each other through every stage of life. 🫶🏻<br><br>
+                May Allah give you a long, healthy, peaceful and successful life, and may He keep happiness close to you wherever you go.<br><br>
+                Once again, <strong>Happy Birthday, ${cousinName}!</strong> 🎉🎂❤️<br>
+                May your birthday always remind you of how blessed you are and how many people are genuinely happy that you exist.<br><br>
+                Stay happy, stay blessed, keep smiling, and keep shining. ✨<br>
+                <strong>Wishing you the happiest birthday and an even more beautiful year ahead!</strong> 🤍
+            `;
+
+            document.getElementById('finalWishContent').innerHTML = wishHTML;
+            document.getElementById('grandWishBtn').style.display = 'none';
+            document.getElementById('grandWishContainer').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
